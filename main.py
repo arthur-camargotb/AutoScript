@@ -620,7 +620,23 @@ class TelaConexao(QWidget):
                 return
         else:
             self.status_output.append(f"⚠️ Aviso: Script de arquivo para '{self.erp}' não encontrado. Executando apenas os scripts padrão.")
-        
+
+        # Carrega o script de parametrizações que deve ser executado ao final
+        caminho_param = os.path.join("scripts", "parametrizacoes.sql")
+        if os.path.exists(caminho_param):
+            self.status_output.append(f"ℹ️ Lendo script de parametrizações: {caminho_param}")
+            try:
+                with open(caminho_param, 'r', encoding='utf-8') as f:
+                    conteudo_script += f"\n{f.read()}"
+            except Exception:
+                self.status_output.append(f"❌ Erro ao ler o arquivo de parametrizações: {caminho_param}")
+                self.log += traceback.format_exc()
+                self.executar_btn.setEnabled(True)
+                self.validar_btn.setEnabled(True)
+                return
+        else:
+            self.status_output.append("⚠️ Aviso: Arquivo de parametrizações não encontrado. Prosseguindo sem ele.")
+
         # Se não há scripts para executar, retorna
         if not conteudo_script.strip():
             self.status_output.append("❌ Erro: Não há scripts para executar.")

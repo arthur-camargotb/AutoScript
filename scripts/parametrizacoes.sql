@@ -1,0 +1,1 @@
+-- Script de parametrizações executado ao final.

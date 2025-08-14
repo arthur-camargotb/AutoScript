@@ -27,4 +27,5 @@ CREATE DATABASE localdbwvappprd
     CONNECTION LIMIT = -1
     IS_TEMPLATE = False;
 
+-- Alterar schema
 ALTER SCHEMA public RENAME TO localdb;

@@ -674,7 +674,72 @@ class TelaConexao(QWidget):
 
         self.status_output.append("ℹ️ Conexão estabelecida. Iniciando execução dos scripts...")
         QApplication.processEvents()
-        
+
+        # Criação de tabelas temporárias e PKs específicas para WMW em PostgreSQL
+        if self.banco == "PostgreSQL" and self.erp == "WMW":
+            cursor = self.db_manager.conn.cursor()
+            try:
+                # Gera e executa os comandos de criação das tabelas temporárias
+                self.status_output.append("ℹ️ Gerando tabelas temporárias para WMW...")
+                cursor.execute(
+                    """
+                    SELECT 'create table ' || replace(table_name, 'tblvw', 'tmpint')
+                           || ' as select * from ' || table_name || ' where 1 = 2;'
+                    FROM information_schema.tables
+                    WHERE lower(table_name) LIKE 'tblvw%';
+                    """
+                )
+                for (create_sql,) in cursor.fetchall():
+                    self.log += f"{create_sql}\n"
+                    try:
+                        cursor.execute(create_sql)
+                        self.db_manager.conn.commit()
+                        self.status_output.append(f"✅ {create_sql}")
+                    except Exception:
+                        self.db_manager.conn.rollback()
+                        err = traceback.format_exc()
+                        self.status_output.append(f"❌ Erro ao executar: {create_sql}")
+                        self.log += f"Erro ao executar: {create_sql}\n{err}\n"
+
+                # Gera e executa os comandos de criação das PKs
+                self.status_output.append("ℹ️ Gerando PKs para as tabelas temporárias...")
+                cursor.execute(
+                    """
+                    SELECT format(
+                               'ALTER TABLE %I.%I ADD CONSTRAINT %I PRIMARY KEY (%s);',
+                               tc.table_schema,
+                               replace(tc.table_name, 'tblvw', 'tmpint'),
+                               replace(tc.constraint_name, 'tblvw', 'tmpint'),
+                               string_agg(kcu.column_name, ', ')
+                           ) AS pk_script
+                    FROM information_schema.table_constraints tc
+                    JOIN information_schema.key_column_usage kcu
+                         ON tc.constraint_name = kcu.constraint_name
+                         AND tc.table_schema = kcu.table_schema
+                    WHERE tc.constraint_type = 'PRIMARY KEY'
+                      AND lower(tc.table_name) LIKE 'tblvw%'
+                    GROUP BY tc.table_schema, tc.table_name, tc.constraint_name
+                    ORDER BY tc.table_schema, tc.table_name;
+                    """
+                )
+                for (pk_sql,) in cursor.fetchall():
+                    self.log += f"{pk_sql}\n"
+                    try:
+                        cursor.execute(pk_sql)
+                        self.db_manager.conn.commit()
+                        self.status_output.append(f"✅ {pk_sql}")
+                    except Exception:
+                        self.db_manager.conn.rollback()
+                        err = traceback.format_exc()
+                        self.status_output.append(f"❌ Erro ao executar: {pk_sql}")
+                        self.log += f"Erro ao executar: {pk_sql}\n{err}\n"
+            except Exception:
+                self.db_manager.conn.rollback()
+                self.status_output.append("❌ Erro ao preparar tabelas temporárias para WMW.")
+                self.log += traceback.format_exc()
+            finally:
+                cursor.close()
+
         success_bloco, error_bloco = self.db_manager.executar_bloco(conteudo_script)
         if success_bloco:
             self.status_output.append(f"✅ Script executado com sucesso.")

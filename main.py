@@ -22,6 +22,9 @@ import psycopg2
 import oracledb
 import pyodbc
 
+# Diretório base do projeto para localizar arquivos de script
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 # Garante que o oracledb possa ser importado.
 if sys.platform.startswith("win"):
     try:
@@ -196,7 +199,7 @@ class TelaInicial(QWidget):
         super().__init__()
         self.avancar_callback = avancar_callback
         self.config = configparser.ConfigParser()
-        self.config.read('config.ini')
+        self.config.read(os.path.join(BASE_DIR, 'config.ini'))
 
         self.setStyleSheet("""
             QWidget {
@@ -292,7 +295,7 @@ class TelaInicial(QWidget):
             'ip_interno': self.ip_interno_input.text(),
             'porta_tomcat': self.porta_tomcat_input.text()
         }
-        with open('config.ini', 'w') as configfile:
+        with open(os.path.join(BASE_DIR, 'config.ini'), 'w') as configfile:
             self.config.write(configfile)
         self.avancar_callback()
 
@@ -312,7 +315,7 @@ class TelaConexao(QWidget):
         self.db_manager = None
         self.log = ""
         self.config = configparser.ConfigParser()
-        self.config.read('config.ini')
+        self.config.read(os.path.join(BASE_DIR, 'config.ini'))
 
         self.setStyleSheet("""
             QWidget {
@@ -468,7 +471,7 @@ class TelaConexao(QWidget):
             config_key = label_text.replace(":", "").strip().lower().replace(" ", "_")
             self.config['CONNECTION'][config_key] = widget.text()
 
-        with open('config.ini', 'w') as configfile:
+        with open(os.path.join(BASE_DIR, 'config.ini'), 'w') as configfile:
             self.config.write(configfile)
 
     def configurar_tela(self, dados_iniciais):
@@ -605,7 +608,7 @@ class TelaConexao(QWidget):
         # TENTA CARREGAR O SCRIPT ESPECÍFICO DO ARQUIVO
         banco = self.banco.lower().replace(" ", "")
         erp = self.erp.lower().replace(" ", "")
-        caminho_script_arquivo = os.path.join("scripts", banco, f"{erp}.sql")
+        caminho_script_arquivo = os.path.join(BASE_DIR, "scripts", banco, f"{erp}.sql")
 
         if os.path.exists(caminho_script_arquivo):
             self.status_output.append(f"ℹ️ Lendo script específico do ERP: {caminho_script_arquivo}")
@@ -622,7 +625,7 @@ class TelaConexao(QWidget):
             self.status_output.append(f"⚠️ Aviso: Script de arquivo para '{self.erp}' não encontrado. Executando apenas os scripts padrão.")
 
         # Carrega o script de parametrizações que deve ser executado ao final
-        caminho_param = os.path.join("scripts", "parametrizacoes.sql")
+        caminho_param = os.path.join(BASE_DIR, "scripts", "parametrizacoes.sql")
         if os.path.exists(caminho_param):
             self.status_output.append(f"ℹ️ Lendo script de parametrizações: {caminho_param}")
             try:

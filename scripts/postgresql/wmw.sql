@@ -24,6 +24,7 @@ UPDATE TBWMWVALORPARAMETRO SET VLPARAMETRO='S' WHERE CDPARAMETRO='630';
 UPDATE TBWMWVALORPARAMETRO SET VLPARAMETRO = 'importadadosparaerp' WHERE CDPARAMETRO = '648';
 UPDATE TBWMWVALORPARAMETRO SET VLPARAMETRO = 'S' WHERE CDPARAMETRO = '315';
 UPDATE TBWMWVALORPARAMETRO SET VLPARAMETRO = 'S' WHERE CDPARAMETRO = '863';
+UPDATE TBWMWVALORPARAMETRO SET VLPARAMETRO = '{"usa":"S","usaAnexoPdfPedido":"S","dsModeloAssunto":"Pedido <empresa.nmEmpresa> - Cliente: <cdCliente> - <cliente.nmRazaoSocial>"}' WHERE CDPARAMETRO = '1631';
 
 ALTER TABLE TBLVWNOVOCLIENTE
 add NUIERG character varying(16);
@@ -101,91 +102,6 @@ UPDATE TBWMWCAMPO SET DSTAGJSON='ReceitaWS.municipio' WHERE NMENTIDADE='TBLVWNOV
 UPDATE TBWMWCAMPO SET DSTAGJSON='ReceitaWS.fantasia' WHERE NMENTIDADE='TBLVWNOVOCLIENTE' AND UPPER(NMCAMPO)='NMFANTASIA';
 UPDATE TBWMWCAMPO SET DSTAGJSON='ReceitaWS.email' WHERE NMENTIDADE='TBLVWNOVOCLIENTE' AND UPPER(NMCAMPO)='DSEMAIL';
 UPDATE TBWMWCAMPO SET DSTAGJSON='ReceitaWS.email' WHERE NMENTIDADE='TBLVWNOVOCLIENTE' AND UPPER(NMCAMPO)='DSEMAILNFE';
-
-CREATE TABLE tmpintpedido AS
-SELECT *
-FROM tblvwpedido
-WHERE 1 = 0;
-
-CREATE TABLE tmpintitempedido AS
-SELECT *
-FROM tblvwitempedido
-WHERE 1 = 0;
-
-CREATE TABLE tmpintnovocliente AS
-SELECT *
-FROM tblvwnovocliente
-WHERE 1 = 0;
-
-CREATE TABLE tmpintempresa AS
-SELECT *
-FROM tblvwempresa
-WHERE 1 = 0;
-
-CREATE TABLE tmpintrepresentante AS
-SELECT *
-FROM tblvwrepresentante
-WHERE 1 = 0;
-
-CREATE TABLE tmpintrepresentanteemp AS
-SELECT *
-FROM tblvwrepresentanteemp
-WHERE 1 = 0;
-
-CREATE TABLE tmpintcondicaopagamento AS
-SELECT *
-FROM tblvwcondicaopagamento
-WHERE 1 = 0;
-
-CREATE TABLE tmpinttipopagamento AS
-SELECT *
-FROM tblvwtipopagamento
-WHERE 1 = 0;
-
-CREATE TABLE tmpinttipopedido AS
-SELECT *
-FROM tblvwtipopedido
-WHERE 1 = 0;
-
-CREATE TABLE tmpintestoque AS
-SELECT *
-FROM tblvwestoque
-WHERE 1 = 0;
-
-CREATE TABLE tmpintproduto AS
-SELECT *
-FROM tblvwproduto
-WHERE 1 = 0;
-
-CREATE TABLE tmpinttabelapreco AS
-SELECT *
-FROM tblvwtabelapreco
-WHERE 1 = 0;
-
-CREATE TABLE tmpintitemtabelapreco AS
-SELECT *
-FROM tblvwitemtabelapreco
-WHERE 1 = 0;
-
-CREATE TABLE tmpintfichafinanceira AS
-SELECT *
-FROM tblvwfichafinanceira
-WHERE 1 = 0;
-
-CREATE TABLE tmpinttitulofinanceiro AS
-SELECT *
-FROM tblvwtitulofinanceiro
-WHERE 1 = 0;
-
-CREATE TABLE tmpintcliente AS
-SELECT *
-FROM tblvwcliente
-WHERE 1 = 0;
-
-CREATE TABLE tmpintgrupoproduto1 AS
-SELECT *
-FROM tblvwgrupoproduto1
-WHERE 1 = 0;
 
 CREATE OR REPLACE FUNCTION importadadosparaerp(_nmtabela character varying, _vlchave character varying, _cdempresa character varying, _cdrepresentante character varying)
  RETURNS character varying

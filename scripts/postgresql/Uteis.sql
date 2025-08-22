@@ -10,25 +10,25 @@ CREATE ROLE localdb WITH
   PASSWORD 'db97!#!!';
 
 --Criar banco WEB
-CREATE DATABASE localdbwvwebprd
-    WITH
-    OWNER = localdb
-    ENCODING = 'UTF8'
-    LOCALE_PROVIDER = 'libc'
-    CONNECTION LIMIT = -1
-    IS_TEMPLATE = False;
+  CREATE DATABASE localdbwvwebprd
+      WITH
+      OWNER = localdb
+      ENCODING = 'UTF8'
+      LOCALE_PROVIDER = 'libc'
+      CONNECTION LIMIT = -1
+      IS_TEMPLATE = False;
 
--- Criar banco APP
-CREATE DATABASE localdbwvappprd
-    WITH
-    OWNER = localdb
-    ENCODING = 'UTF8'
-    LOCALE_PROVIDER = 'libc'
-    CONNECTION LIMIT = -1
-    IS_TEMPLATE = False;
+  -- Criar banco APP
+  CREATE DATABASE localdbwvappprd
+      WITH
+      OWNER = localdb
+      ENCODING = 'UTF8'
+      LOCALE_PROVIDER = 'libc'
+      CONNECTION LIMIT = -1
+      IS_TEMPLATE = False;
 
--- Alterar schema
-ALTER SCHEMA public RENAME TO localdb;
+  -- Alterar schema
+  ALTER SCHEMA public RENAME TO localdb;
 
 -- Dados teste
 INSERT INTO TMPINTEMPRESA (CDEMPRESA,NMEMPRESA,FLATIVO)

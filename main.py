@@ -35,8 +35,9 @@ if sys.platform.startswith("win"):
 def _parse_sql_commands(script):
     """
     Divide um script SQL em comandos individuais de forma robusta.
-    Esta versão aprimorada lida corretamente com comentários, aspas simples,
-    aspas duplas e, crucialmente, aspas entre dólares ($tag$ ... $tag$) do PostgreSQL,
+    Comentários de linha ou bloco são removidos antes da execução.
+    Esta versão lida corretamente com aspas simples, aspas duplas e,
+    crucialmente, aspas entre dólares ($tag$ ... $tag$) do PostgreSQL,
     evitando erros de sintaxe.
     """
     commands = []
@@ -53,25 +54,31 @@ def _parse_sql_commands(script):
         char = script[i]
         
         # Lida com comentários de bloco
-        if char == '/' and i + 1 < len(script) and script[i+1] == '*' and not (in_single_quotes or in_double_quotes or in_dollar_quote):
+        if char == '/' and i + 1 < len(script) and script[i + 1] == '*' and not (
+            in_single_quotes or in_double_quotes or in_dollar_quote
+        ):
             in_block_comment = True
-            current_command += script[i]
-            i += 1
-        elif in_block_comment and char == '*' and i + 1 < len(script) and script[i+1] == '/':
+            i += 1  # pula o '*'
+        elif in_block_comment and char == '*' and i + 1 < len(script) and script[i + 1] == '/':
             in_block_comment = False
-            current_command += script[i:i+2]
-            i += 1
+            i += 1  # pula o '/'
+            current_command += " "  # evita juntar tokens adjacentes
         elif in_block_comment:
-            current_command += char
-        
+            pass  # ignora conteúdo dentro de comentários de bloco
+
         # Lida com comentários de linha
-        elif char == '-' and i + 1 < len(script) and script[i+1] == '-' and not (in_single_quotes or in_double_quotes or in_dollar_quote):
+        elif (
+            char == '-' and i + 1 < len(script) and script[i + 1] == '-' and not (
+                in_single_quotes or in_double_quotes or in_dollar_quote
+            )
+        ):
             in_line_comment = True
-            current_command += script[i]
-            i += 1
+            i += 1  # pula o segundo '-'
         elif in_line_comment and char == '\n':
             in_line_comment = False
-            current_command += char
+            current_command += char  # mantém a quebra de linha
+        elif in_line_comment:
+            pass  # ignora o conteúdo do comentário de linha
 
         # Lida com aspas entre dólares (PostgreSQL)
         elif char == '$' and not (in_single_quotes or in_double_quotes or in_block_comment or in_line_comment):
@@ -207,20 +214,21 @@ class DatabaseManager:
                 with open(caminho, "rb") as img:
                     dados = img.read()
 
+                cd_str = str(cd)
                 if self.banco == "PostgreSQL":
                     cursor.execute(
                         "UPDATE tblvwmarcador SET immarcadorativo = %s WHERE cdmarcador = %s",
-                        (psycopg2.Binary(dados), cd),
+                        (psycopg2.Binary(dados), cd_str),
                     )
                 elif self.banco == "Oracle":
                     cursor.execute(
                         "UPDATE tblvwmarcador SET immarcadorativo = :1 WHERE cdmarcador = :2",
-                        [dados, cd],
+                        [dados, cd_str],
                     )
                 elif self.banco == "SQL Server":
                     cursor.execute(
                         "UPDATE tblvwmarcador SET immarcadorativo = ? WHERE cdmarcador = ?",
-                        (dados, cd),
+                        (dados, cd_str),
                     )
 
             self.conn.commit()

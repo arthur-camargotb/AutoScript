@@ -128,7 +128,6 @@ UPDATE TBWMWVALORPARAMETRO SET VLPARAMETRO='8;1;3' WHERE CDPARAMETRO='1782';
 /* Pesquisa de Mercado */
 
 UPDATE TBLVWCONFIGINTEGWEBTC SET FLATIVO='S' WHERE DSTABELA IN('TBLVPPESQUISAMERCADOCONFIG','TBLVPPESQUISAMERCADOPRODUTO','TBLVPPESQUISAMERCADOREG','TBLVPPESQUISAMERCCONC');
-
 UPDATE TBWMWVALORPARAMETRO SET VLPARAMETRO='{"usa":"S","ignoraCliente":"N","permiteInserirNovoExcluirItem":"N","usaPesquisaPedido":"N","usaPesquisaItemPedido":"N","usaInclusaoFotoPesquisa":"N","usaInclusaoFotoProdPesquisa":"N","obrigaInclusaoFoto":"N","usaCadastroCoordenada":"N","permiteCoordenadaAuto":"N","timeOutCoordenadaAuto":"N","excluiPesquisaPedido":"N","geraNovidadePesquisa":"S"}'
 WHERE CDPARAMETRO='1837';
 UPDATE TBWMWVALORPARAMETRO SET VLPARAMETRO='N' WHERE CDPARAMETRO='1128';

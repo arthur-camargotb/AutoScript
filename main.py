@@ -248,13 +248,22 @@ class TelaInicial(QWidget):
 
         self.erp_combo.addItems(["Sankhya", "Senior", "WMW"])
 
+        # Campos extras por ERP (exemplos)
+        self.campos_extras_por_erp = {
+            "Sankhya": [("Campo Sankhya 1:", QLineEdit()), ("Campo Sankhya 2:", QLineEdit())],
+            "Senior": [("Campo Senior 1:", QLineEdit()), ("Campo Senior 2:", QLineEdit())],
+            "WMW": [("Campo WMW 1:", QLineEdit())]
+        }
+        self.campos_extras_widgets = []
+
         # Carrega as configurações salvas, incluindo os novos campos
         if 'DEFAULT' in self.config:
             self.cliente_input.setText(self.config.get('DEFAULT', 'cliente', fallback=''))
             self.ip_interno_input.setText(self.config.get('DEFAULT', 'ip_interno', fallback=''))
             self.porta_tomcat_input.setText(self.config.get('DEFAULT', 'porta_tomcat', fallback=''))
             erp_index = self.erp_combo.findText(self.config.get('DEFAULT', 'erp', fallback=''))
-            if erp_index != -1: self.erp_combo.setCurrentIndex(erp_index)
+            if erp_index != -1:
+                self.erp_combo.setCurrentIndex(erp_index)
 
         layout = QVBoxLayout()
         layout.setContentsMargins(40, 40, 40, 40)
@@ -270,6 +279,12 @@ class TelaInicial(QWidget):
         form.addRow("IP Interno:", self.ip_interno_input)
         form.addRow("Porta Tomcat:", self.porta_tomcat_input)
         form.addRow("ERP:", self.erp_combo)
+
+        # Configuração de campos extras
+        self.form = form
+        self.extras_row_start = self.form.rowCount()
+        self.erp_combo.currentTextChanged.connect(self.atualizar_campos_extras)
+        self.atualizar_campos_extras(self.erp_combo.currentText())
 
         avancar_btn = QPushButton("Avançar")
         avancar_btn.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
@@ -300,13 +315,26 @@ class TelaInicial(QWidget):
         self.avancar_callback()
 
     def get_dados(self):
-        # Retornando os novos campos
+        # Retornando os novos campos, incluindo extras
+        extras = {label.rstrip(":"): widget.text() for label, widget in self.campos_extras_widgets}
         return {
             "cliente": self.cliente_input.text(),
             "erp": self.erp_combo.currentText(),
             "ip_interno": self.ip_interno_input.text(),
-            "porta_tomcat": self.porta_tomcat_input.text()
+            "porta_tomcat": self.porta_tomcat_input.text(),
+            "extras": extras
         }
+
+    def atualizar_campos_extras(self, erp):
+        # Remove campos extras existentes
+        while self.form.rowCount() > self.extras_row_start:
+            self.form.removeRow(self.extras_row_start)
+        self.campos_extras_widgets = []
+
+        # Adiciona novos campos conforme o ERP
+        for label, widget in self.campos_extras_por_erp.get(erp, []):
+            self.form.addRow(label, widget)
+            self.campos_extras_widgets.append((label, widget))
 
 class TelaConexao(QWidget):
     def __init__(self, voltar_callback):
@@ -480,6 +508,7 @@ class TelaConexao(QWidget):
         self.cliente = dados_iniciais["cliente"]
         self.ip_interno = dados_iniciais["ip_interno"]
         self.porta_tomcat = dados_iniciais["porta_tomcat"]
+        self.extras = dados_iniciais.get("extras", {})
 
         self.status_output.clear()
         self.log = ""
@@ -584,6 +613,30 @@ class TelaConexao(QWidget):
         # Inicia com o conteúdo que será executado.
         conteudo_script = ""
 
+        # Carrega o script padrão do banco (executado primeiro)
+        banco_folder = self.banco.lower().replace(" ", "")
+        arquivo_padrao_map = {
+            "PostgreSQL": "confPadraoPostgres.sql",
+            "Oracle": "confPadraoOracle.sql",
+            "SQL Server": "confPadraoSqlServer.sql"
+        }
+        arquivo_padrao = arquivo_padrao_map.get(self.banco)
+        if arquivo_padrao:
+            caminho_conf_banco = os.path.join(BASE_DIR, "scripts", banco_folder, arquivo_padrao)
+            if os.path.exists(caminho_conf_banco):
+                self.status_output.append(f"ℹ️ Lendo script padrão do banco: {caminho_conf_banco}")
+                try:
+                    with open(caminho_conf_banco, 'r', encoding='utf-8') as f:
+                        conteudo_script += f.read() + "\n"
+                except Exception:
+                    self.status_output.append(f"❌ Erro ao ler o script padrão do banco: {caminho_conf_banco}")
+                    self.log += traceback.format_exc()
+                    self.executar_btn.setEnabled(True)
+                    self.validar_btn.setEnabled(True)
+                    return
+            else:
+                self.status_output.append(f"⚠️ Aviso: Script padrão do banco não encontrado: {caminho_conf_banco}")
+
         # GERAÇÃO DO SCRIPT PADRÃO (SEMPRE RODA PRIMEIRO)
         self.status_output.append("ℹ️ Gerando scripts padrão a partir dos dados da tela inicial...")
         
@@ -606,9 +659,8 @@ class TelaConexao(QWidget):
         self.status_output.append("✅ Scripts padrão gerados com sucesso.")
         
         # TENTA CARREGAR O SCRIPT ESPECÍFICO DO ARQUIVO
-        banco = self.banco.lower().replace(" ", "")
         erp = self.erp.lower().replace(" ", "")
-        caminho_script_arquivo = os.path.join(BASE_DIR, "scripts", banco, f"{erp}.sql")
+        caminho_script_arquivo = os.path.join(BASE_DIR, "scripts", banco_folder, f"{erp}.sql")
 
         if os.path.exists(caminho_script_arquivo):
             self.status_output.append(f"ℹ️ Lendo script específico do ERP: {caminho_script_arquivo}")

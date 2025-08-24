@@ -214,20 +214,21 @@ class DatabaseManager:
                 with open(caminho, "rb") as img:
                     dados = img.read()
 
+                cd_str = str(cd)
                 if self.banco == "PostgreSQL":
                     cursor.execute(
                         "UPDATE tblvwmarcador SET immarcadorativo = %s WHERE cdmarcador = %s",
-                        (psycopg2.Binary(dados), cd),
+                        (psycopg2.Binary(dados), cd_str),
                     )
                 elif self.banco == "Oracle":
                     cursor.execute(
                         "UPDATE tblvwmarcador SET immarcadorativo = :1 WHERE cdmarcador = :2",
-                        [dados, cd],
+                        [dados, cd_str],
                     )
                 elif self.banco == "SQL Server":
                     cursor.execute(
                         "UPDATE tblvwmarcador SET immarcadorativo = ? WHERE cdmarcador = ?",
-                        (dados, cd),
+                        (dados, cd_str),
                     )
 
             self.conn.commit()

@@ -533,3 +533,11 @@ WITH dias AS (
    FROM (tmpintcliente cli
      LEFT JOIN dias ON (((dias.cdcliente)::text = (cli.cdcliente)::text)))
   WHERE ((cli.flativo = 'S'::bpchar) AND ((cli.cdrepresentante)::text <> 'S'::text));
+
+create view tbintconcorrente as
+select 
+	cdempresa,
+	cdconcorrente,
+	dsconcorrente 
+from tmpintconcorrente 
+where flativo ='S';

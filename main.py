@@ -194,6 +194,39 @@ class DatabaseManager:
             cursor.close()
             return False, traceback.format_exc()
 
+    def inserir_imagens_marcadores(self, icons_dir):
+        """Insere imagens padrão na tabela de marcadores."""
+        if not self.conn:
+            raise Exception("Conexão não está aberta.")
+
+        cursor = self.conn.cursor()
+        try:
+            imagens = [(1, "30.png"), (2, "60.png"), (3, "90.png")]
+            for cd, nome_arquivo in imagens:
+                caminho = os.path.join(icons_dir, nome_arquivo)
+                with open(caminho, "rb") as img:
+                    dados = img.read()
+
+                if self.banco == "PostgreSQL":
+                    cursor.execute(
+                        "UPDATE tblvwmarcador SET immarcadorativo = %s WHERE cdmarcador = %s",
+                        (psycopg2.Binary(dados), cd),
+                    )
+                elif self.banco == "Oracle":
+                    cursor.execute(
+                        "UPDATE tblvwmarcador SET immarcadorativo = :1 WHERE cdmarcador = :2",
+                        [dados, cd],
+                    )
+                elif self.banco == "SQL Server":
+                    cursor.execute(
+                        "UPDATE tblvwmarcador SET immarcadorativo = ? WHERE cdmarcador = ?",
+                        (dados, cd),
+                    )
+
+            self.conn.commit()
+        finally:
+            cursor.close()
+
 class TelaInicial(QWidget):
     def __init__(self, avancar_callback):
         super().__init__()
@@ -795,6 +828,13 @@ class TelaConexao(QWidget):
         success_bloco, error_bloco = self.db_manager.executar_bloco(conteudo_script)
         if success_bloco:
             self.status_output.append(f"✅ Script executado com sucesso.")
+            try:
+                icons_dir = os.path.join(BASE_DIR, "icons")
+                self.db_manager.inserir_imagens_marcadores(icons_dir)
+                self.status_output.append("✅ Imagens dos marcadores inseridas.")
+            except Exception:
+                self.status_output.append("❌ Erro ao inserir imagens dos marcadores.")
+                self.log += traceback.format_exc()
         else:
             self.status_output.append(f"❌ Erro na execução do script: {str(error_bloco)}")
             self.log += f"Erro na execução do script:\n{conteudo_script}\n{error_bloco}\n"

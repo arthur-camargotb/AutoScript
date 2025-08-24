@@ -132,3 +132,7 @@ UPDATE TBLVWCONFIGINTEGWEBTC SET FLATIVO='S' WHERE DSTABELA IN('TBLVPPESQUISAMER
 UPDATE TBWMWVALORPARAMETRO SET VLPARAMETRO='{"usa":"S","ignoraCliente":"N","permiteInserirNovoExcluirItem":"N","usaPesquisaPedido":"N","usaPesquisaItemPedido":"N","usaInclusaoFotoPesquisa":"N","usaInclusaoFotoProdPesquisa":"N","obrigaInclusaoFoto":"N","usaCadastroCoordenada":"N","permiteCoordenadaAuto":"N","timeOutCoordenadaAuto":"N","excluiPesquisaPedido":"N","geraNovidadePesquisa":"S"}'
 WHERE CDPARAMETRO='1837';
 UPDATE TBWMWVALORPARAMETRO SET VLPARAMETRO='N' WHERE CDPARAMETRO='1128';
+
+/* Filtros */
+UPDATE TBWMWVALORPARAMETRO SET VLPARAMETRO='2;9;21' WHERE CDPARAMETRO='221';
+UPDATE TBWMWVALORPARAMETRO SET VLPARAMETRO='2;10;21' WHERE CDPARAMETRO='610';

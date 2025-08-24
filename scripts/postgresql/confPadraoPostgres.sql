@@ -1,0 +1,2 @@
+-- Script padrão para PostgreSQL
+-- Adicione aqui comandos SQL que devem ser executados antes dos demais scripts.

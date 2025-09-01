@@ -302,10 +302,20 @@ class TelaInicial(QWidget):
 
         self.erp_combo.addItems(["Sankhya", "Senior", "WMW"])
 
-        # Campos extras por ERP (exemplos)
+        # Campos extras por ERP
+        url_senior_input = QLineEdit()
+        url_senior_input.setPlaceholderText("Somente ip:porta")
+        usuario_senior_input = QLineEdit()
+        senha_senior_input = QLineEdit()
+        senha_senior_input.setEchoMode(QLineEdit.Password)
+
         self.campos_extras_por_erp = {
             "Sankhya": [("Campo Sankhya 1:", QLineEdit()), ("Campo Sankhya 2:", QLineEdit())],
-            "Senior": [("Campo Senior 1:", QLineEdit()), ("Campo Senior 2:", QLineEdit())],
+            "Senior": [
+                ("Url Senior:", url_senior_input),
+                ("Usuario Senior:", usuario_senior_input),
+                ("Senha Senior:", senha_senior_input)
+            ],
             "WMW": [("Campo WMW 1:", QLineEdit())]
         }
         self.campos_extras_widgets = []
@@ -752,6 +762,32 @@ class TelaConexao(QWidget):
                 return
         else:
             self.status_output.append("⚠️ Aviso: Arquivo de parametrizações não encontrado. Prosseguindo sem ele.")
+
+        # Scripts adicionais para ERP específicos
+        if self.erp == "Senior":
+            url_senior = self.extras.get("Url Senior", "").strip()
+            usuario_senior = self.extras.get("Usuario Senior", "").strip()
+            senha_senior = self.extras.get("Senha Senior", "").strip()
+
+            if url_senior:
+                script_url_senior = (
+                    f"UPDATE TBWMWVALORPARAMETRO SET VLPARAMETRO='http://{url_senior}/g5-senior-services' WHERE CDPARAMETRO='1216';\n"
+                    f"UPDATE TBWMWVALORPARAMETRO SET VLPARAMETRO='http://{url_senior}/g5-senior-services/sapiens_Synccom_senior_g5_co_mcm_ven_pedidos' WHERE CDPARAMETRO='517';\n"
+                )
+                conteudo_erp += script_url_senior + "\n"
+                self.log += script_url_senior
+
+            if usuario_senior or senha_senior:
+                usuario_senior_sql = usuario_senior.replace("'", "''")
+                senha_senior_sql = senha_senior.replace("'", "''")
+                json_value = (
+                    f'{{"paramUser":"N","valueUser":"N","paramPassword":"N","valuePassword":"N","othersParams":"user:{usuario_senior_sql}|password:{senha_senior_sql}|encryption:0"}}'
+                )
+                script_auth_senior = (
+                    f"UPDATE TBWMWVALORPARAMETRO SET VLPARAMETRO='{json_value}' WHERE CDPARAMETRO='524';\n"
+                )
+                conteudo_erp += script_auth_senior + "\n"
+                self.log += script_auth_senior
 
         # Se não há scripts para executar, retorna
         if not (conteudo_padrao.strip() or conteudo_erp.strip()):

@@ -832,7 +832,7 @@ class TelaConexao(QWidget):
         self.status_output.append("ℹ️ Conexão estabelecida. Iniciando execução dos scripts...")
         QApplication.processEvents()
 
-        if self.banco == "PostgreSQL" and self.erp == "WMW":
+        if self.banco == "PostgreSQL" and self.erp.strip().lower() == "wmw":
             if conteudo_padrao.strip():
                 self.status_output.append("ℹ️ Executando scripts padrão...")
                 success_padrao, error_padrao = self.db_manager.executar_bloco(conteudo_padrao)
@@ -852,10 +852,17 @@ class TelaConexao(QWidget):
                 self.status_output.append("ℹ️ Gerando tabelas temporárias para WMW...")
                 cursor.execute(
                     """
-                    SELECT 'create table ' || replace(table_name, 'tblvw', 'tmpint')
-                           || ' as select * from ' || table_name || ' where 1 = 2;'
+                    SELECT DISTINCT
+                           format(
+                               'create table %I.%I as select * from %I.%I where 1 = 2;',
+                               table_schema,
+                               replace(table_name, 'tblvw', 'tmpint'),
+                               table_schema,
+                               table_name
+                           )
                     FROM information_schema.tables
-                    WHERE lower(table_name) LIKE 'tblvw%';
+                    WHERE lower(table_name) LIKE 'tblvw%'
+                      AND table_schema NOT IN ('information_schema','pg_catalog');
                     """
                 )
                 for (create_sql,) in cursor.fetchall():
@@ -886,6 +893,7 @@ class TelaConexao(QWidget):
                          AND tc.table_schema = kcu.table_schema
                     WHERE tc.constraint_type = 'PRIMARY KEY'
                       AND lower(tc.table_name) LIKE 'tblvw%'
+                      AND tc.table_schema NOT IN ('information_schema','pg_catalog')
                     GROUP BY tc.table_schema, tc.table_name, tc.constraint_name
                     ORDER BY tc.table_schema, tc.table_name;
                     """

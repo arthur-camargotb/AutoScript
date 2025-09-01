@@ -195,8 +195,12 @@ class DatabaseManager:
                     cursor.execute(cmd)
                 except Exception as e:
                     if self.banco == "PostgreSQL" and isinstance(e, psycopg2.errors.DuplicateTable):
-                        # Obtém o nome da tabela a partir da mensagem de erro e a recria
-                        match = re.search(r'relation "?([^"\s]+)"? already exists', str(e))
+                        # Obtém o nome da tabela a partir do próprio comando e a recria
+                        match = re.search(
+                            r'CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?"?([^\s(\"]+)"?',
+                            cmd,
+                            re.IGNORECASE,
+                        )
                         if match:
                             tabela = match.group(1)
                             cursor.execute(f'DROP TABLE IF EXISTS {tabela} CASCADE')

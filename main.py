@@ -190,9 +190,21 @@ class DatabaseManager:
                 return False, "Nenhum comando SQL válido encontrado para executar."
 
             for cmd in comandos:
-                # Executa cada comando separadamente.
-                cursor.execute(cmd)
-            
+                # Executa cada comando separadamente e trata duplicações de tabelas
+                try:
+                    cursor.execute(cmd)
+                except Exception as e:
+                    if self.banco == "PostgreSQL" and isinstance(e, psycopg2.errors.DuplicateTable):
+                        # Obtém o nome da tabela a partir da mensagem de erro e a recria
+                        match = re.search(r'relation "?([^"\s]+)"? already exists', str(e))
+                        if match:
+                            tabela = match.group(1)
+                            cursor.execute(f'DROP TABLE IF EXISTS {tabela} CASCADE')
+                            cursor.execute(cmd)
+                        else:
+                            raise
+                    else:
+                        raise
             self.conn.commit()
             cursor.close()
             return True, None

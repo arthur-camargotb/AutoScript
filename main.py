@@ -193,6 +193,7 @@ class DatabaseManager:
                 # Executa cada comando separadamente e trata duplicações de tabelas
                 try:
                     cursor.execute(cmd)
+                    self.conn.commit()
                 except Exception as e:
                     if self.banco == "PostgreSQL" and isinstance(e, psycopg2.errors.DuplicateTable):
                         # Obtém o nome da tabela a partir do próprio comando e a recria
@@ -203,13 +204,17 @@ class DatabaseManager:
                         )
                         if match:
                             tabela = match.group(1)
+                            self.conn.rollback()
                             cursor.execute(f'DROP TABLE IF EXISTS {tabela} CASCADE')
+                            self.conn.commit()
                             cursor.execute(cmd)
+                            self.conn.commit()
                         else:
                             raise
                     else:
-                        raise
-            self.conn.commit()
+                        self.conn.rollback()
+                        cursor.close()
+                        return False, traceback.format_exc()
             cursor.close()
             return True, None
         except Exception as e:

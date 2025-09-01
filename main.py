@@ -303,20 +303,27 @@ class TelaInicial(QWidget):
         self.erp_combo.addItems(["Sankhya", "Senior", "WMW"])
 
         # Campos extras por ERP
-        url_senior_input = QLineEdit()
-        url_senior_input.setPlaceholderText("Somente ip:porta")
-        usuario_senior_input = QLineEdit()
-        senha_senior_input = QLineEdit()
-        senha_senior_input.setEchoMode(QLineEdit.Password)
+        def create_line_edit(placeholder=None, echo_mode=None):
+            line_edit = QLineEdit()
+            if placeholder:
+                line_edit.setPlaceholderText(placeholder)
+            if echo_mode is not None:
+                line_edit.setEchoMode(echo_mode)
+            return line_edit
 
         self.campos_extras_por_erp = {
-            "Sankhya": [("Campo Sankhya 1:", QLineEdit()), ("Campo Sankhya 2:", QLineEdit())],
-            "Senior": [
-                ("Url Senior:", url_senior_input),
-                ("Usuario Senior:", usuario_senior_input),
-                ("Senha Senior:", senha_senior_input)
+            "Sankhya": [
+                ("Campo Sankhya 1:", lambda: QLineEdit()),
+                ("Campo Sankhya 2:", lambda: QLineEdit())
             ],
-            "WMW": [("Campo WMW 1:", QLineEdit())]
+            "Senior": [
+                ("Url Senior:", lambda: create_line_edit(placeholder="Somente ip:porta")),
+                ("Usuario Senior:", lambda: QLineEdit()),
+                ("Senha Senior:", lambda: create_line_edit(echo_mode=QLineEdit.Password))
+            ],
+            "WMW": [
+                ("Campo WMW 1:", lambda: QLineEdit())
+            ]
         }
         self.campos_extras_widgets = []
 
@@ -396,7 +403,8 @@ class TelaInicial(QWidget):
         self.campos_extras_widgets = []
 
         # Adiciona novos campos conforme o ERP
-        for label, widget in self.campos_extras_por_erp.get(erp, []):
+        for label, widget_factory in self.campos_extras_por_erp.get(erp, []):
+            widget = widget_factory()
             self.form.addRow(label, widget)
             self.campos_extras_widgets.append((label, widget))
 

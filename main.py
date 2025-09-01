@@ -202,15 +202,25 @@ class DatabaseManager:
             return False, traceback.format_exc()
 
     def inserir_imagens_marcadores(self, icons_dir):
-        """Insere imagens padrão na tabela de marcadores."""
+        """Insere imagens padrão na tabela de marcadores.
+
+        Caso algum arquivo de imagem não esteja disponível, o método apenas
+        ignora-o sem gerar erros. Retorna a quantidade de imagens inseridas.
+        """
         if not self.conn:
             raise Exception("Conexão não está aberta.")
 
+        if not os.path.isdir(icons_dir):
+            return 0
+
         cursor = self.conn.cursor()
+        inseridos = 0
         try:
             imagens = [(1, "30.png"), (2, "60.png"), (3, "90.png")]
             for cd, nome_arquivo in imagens:
                 caminho = os.path.join(icons_dir, nome_arquivo)
+                if not os.path.exists(caminho):
+                    continue
                 with open(caminho, "rb") as img:
                     dados = img.read()
 
@@ -231,7 +241,10 @@ class DatabaseManager:
                         (dados, cd_str),
                     )
 
+                inseridos += 1
+
             self.conn.commit()
+            return inseridos
         finally:
             cursor.close()
 
@@ -651,8 +664,12 @@ class TelaConexao(QWidget):
         self.validar_btn.setEnabled(False)
         self.executar_btn.setEnabled(False)
 
-        # Inicia com o conteúdo que será executado.
-        conteudo_script = ""
+        # Conteúdo dos scripts separados em duas fases. O bloco padrão
+        # contém o confPadrao e scripts gerados automaticamente. O bloco
+        # específico do ERP é executado após as tabelas temporárias quando
+        # necessário.
+        conteudo_padrao = ""
+        conteudo_erp = ""
 
         # Carrega o script padrão do banco (executado primeiro)
         banco_folder = self.banco.lower().replace(" ", "")
@@ -668,7 +685,7 @@ class TelaConexao(QWidget):
                 self.status_output.append(f"ℹ️ Lendo script padrão do banco: {caminho_conf_banco}")
                 try:
                     with open(caminho_conf_banco, 'r', encoding='utf-8') as f:
-                        conteudo_script += f.read() + "\n"
+                        conteudo_padrao += f.read() + "\n"
                 except Exception:
                     self.status_output.append(f"❌ Erro ao ler o script padrão do banco: {caminho_conf_banco}")
                     self.log += traceback.format_exc()
@@ -684,18 +701,21 @@ class TelaConexao(QWidget):
         # Script 1: Atualiza o nome do cliente
         script_cliente = f"UPDATE TBWMWVALORPARAMETRO SET VLPARAMETRO = '{self.cliente}' WHERE CDPARAMETRO = '643';\n"
         script_cliente += f"UPDATE TBWMWVALORPARAMETRO SET VLPARAMETRO = '{self.cliente}' WHERE CDPARAMETRO = '833';\n"
-        conteudo_script += script_cliente + "\n"
+        conteudo_padrao += script_cliente + "\n"
         
         # Script 2: Atualiza o IP e a Porta do Tomcat
         url_tomcat_dados = f"http://{self.ip_interno}:{self.porta_tomcat}/wmwdados"
         url_tomcat_vendas = f"http://{self.ip_interno}:{self.porta_tomcat}/wmwvendas"
         script_ip_porta = f"UPDATE TBWMWVALORPARAMETRO SET VLPARAMETRO = '{url_tomcat_dados}' WHERE CDPARAMETRO = '554';\n"
         script_ip_porta += f"UPDATE TBWMWVALORPARAMETRO SET VLPARAMETRO = '{url_tomcat_vendas}' WHERE CDPARAMETRO = '530';\n"
-        conteudo_script += script_ip_porta + "\n"
+        conteudo_padrao += script_ip_porta + "\n"
 
         # Script 3: Adiciona a conexão PDA
-        script_conexao_pda = f"INSERT INTO TBLVWCONEXAOPDA (cdconexao,dsconexao,dsurlwebservice,flconexaodiscada,fldefault,flativo) values('1','Local','http://{self.ip_interno}:{self.porta_tomcat}/wmwdados','N','S','S');\n"
-        conteudo_script += script_conexao_pda + "\n"
+        script_conexao_pda = (
+            f"INSERT INTO TBLVWCONEXAOPDA (cdconexao,dsconexao,dsurlwebservice,flconexaodiscada,"
+            f"fldefault,flativo) values('1','Local','http://{self.ip_interno}:{self.porta_tomcat}/wmwdados','N','S','S');\n"
+        )
+        conteudo_padrao += script_conexao_pda + "\n"
         
         self.status_output.append("✅ Scripts padrão gerados com sucesso.")
         
@@ -707,7 +727,7 @@ class TelaConexao(QWidget):
             self.status_output.append(f"ℹ️ Lendo script específico do ERP: {caminho_script_arquivo}")
             try:
                 with open(caminho_script_arquivo, 'r', encoding='utf-8') as f:
-                    conteudo_script += f.read()
+                    conteudo_erp += f.read()
             except Exception as e:
                 self.status_output.append(f"❌ Erro ao ler o arquivo de script: {caminho_script_arquivo}")
                 self.log += traceback.format_exc()
@@ -723,7 +743,7 @@ class TelaConexao(QWidget):
             self.status_output.append(f"ℹ️ Lendo script de parametrizações: {caminho_param}")
             try:
                 with open(caminho_param, 'r', encoding='utf-8') as f:
-                    conteudo_script += f"\n{f.read()}"
+                    conteudo_erp += f"\n{f.read()}"
             except Exception:
                 self.status_output.append(f"❌ Erro ao ler o arquivo de parametrizações: {caminho_param}")
                 self.log += traceback.format_exc()
@@ -734,7 +754,7 @@ class TelaConexao(QWidget):
             self.status_output.append("⚠️ Aviso: Arquivo de parametrizações não encontrado. Prosseguindo sem ele.")
 
         # Se não há scripts para executar, retorna
-        if not conteudo_script.strip():
+        if not (conteudo_padrao.strip() or conteudo_erp.strip()):
             self.status_output.append("❌ Erro: Não há scripts para executar.")
             self.executar_btn.setEnabled(True)
             self.validar_btn.setEnabled(True)
@@ -768,11 +788,23 @@ class TelaConexao(QWidget):
         self.status_output.append("ℹ️ Conexão estabelecida. Iniciando execução dos scripts...")
         QApplication.processEvents()
 
-        # Criação de tabelas temporárias e PKs específicas para WMW em PostgreSQL
         if self.banco == "PostgreSQL" and self.erp == "WMW":
+            if conteudo_padrao.strip():
+                self.status_output.append("ℹ️ Executando scripts padrão...")
+                success_padrao, error_padrao = self.db_manager.executar_bloco(conteudo_padrao)
+                if success_padrao:
+                    self.status_output.append("✅ Scripts padrão executados.")
+                else:
+                    self.status_output.append(f"❌ Erro na execução do script: {str(error_padrao)}")
+                    self.log += f"Erro na execução do script:\n{conteudo_padrao}\n{error_padrao}\n"
+                    self.db_manager.fechar_conexao()
+                    self.status_output.append("✅ Execução dos scripts finalizada.")
+                    self.executar_btn.setEnabled(True)
+                    self.validar_btn.setEnabled(True)
+                    return
+
             cursor = self.db_manager.conn.cursor()
             try:
-                # Gera e executa os comandos de criação das tabelas temporárias
                 self.status_output.append("ℹ️ Gerando tabelas temporárias para WMW...")
                 cursor.execute(
                     """
@@ -794,7 +826,6 @@ class TelaConexao(QWidget):
                         self.status_output.append(f"❌ Erro ao executar: {create_sql}")
                         self.log += f"Erro ao executar: {create_sql}\n{err}\n"
 
-                # Gera e executa os comandos de criação das PKs
                 self.status_output.append("ℹ️ Gerando PKs para as tabelas temporárias...")
                 cursor.execute(
                     """
@@ -833,19 +864,32 @@ class TelaConexao(QWidget):
             finally:
                 cursor.close()
 
-        success_bloco, error_bloco = self.db_manager.executar_bloco(conteudo_script)
+            if conteudo_erp.strip():
+                self.status_output.append("ℹ️ Executando script específico e parametrizações...")
+                success_bloco, error_bloco = self.db_manager.executar_bloco(conteudo_erp)
+            else:
+                success_bloco, error_bloco = True, None
+            conteudo_log = conteudo_erp
+        else:
+            conteudo_total = conteudo_padrao + conteudo_erp
+            success_bloco, error_bloco = self.db_manager.executar_bloco(conteudo_total)
+            conteudo_log = conteudo_total
+
         if success_bloco:
-            self.status_output.append(f"✅ Script executado com sucesso.")
+            self.status_output.append("✅ Script executado com sucesso.")
             try:
                 icons_dir = os.path.join(BASE_DIR, "icons")
-                self.db_manager.inserir_imagens_marcadores(icons_dir)
-                self.status_output.append("✅ Imagens dos marcadores inseridas.")
+                inseridos = self.db_manager.inserir_imagens_marcadores(icons_dir)
+                if inseridos:
+                    self.status_output.append("✅ Imagens dos marcadores inseridas.")
+                else:
+                    self.status_output.append("⚠️ Nenhuma imagem de marcador encontrada; etapa ignorada.")
             except Exception:
                 self.status_output.append("❌ Erro ao inserir imagens dos marcadores.")
                 self.log += traceback.format_exc()
         else:
             self.status_output.append(f"❌ Erro na execução do script: {str(error_bloco)}")
-            self.log += f"Erro na execução do script:\n{conteudo_script}\n{error_bloco}\n"
+            self.log += f"Erro na execução do script:\n{conteudo_log}\n{error_bloco}\n"
 
         self.db_manager.fechar_conexao()
         self.status_output.append("✅ Execução dos scripts finalizada.")

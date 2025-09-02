@@ -334,8 +334,9 @@ class TelaInicial(QWidget):
 
         self.campos_extras_por_erp = {
             "Sankhya": [
-                ("Campo Sankhya 1:", lambda: QLineEdit()),
-                ("Campo Sankhya 2:", lambda: QLineEdit())
+                ("Usuario Skw:", lambda: QLineEdit()),
+                ("Senha Skw:", lambda: QLineEdit()),
+                ("URL Skw:", lambda: QLineEdit())
             ],
             "Senior": [
                 ("Url Senior:", lambda: create_line_edit(placeholder="Somente ip:porta")),
@@ -343,7 +344,6 @@ class TelaInicial(QWidget):
                 ("Senha Senior:", lambda: create_line_edit(echo_mode=QLineEdit.Password))
             ],
             "WMW": [
-                ("Campo WMW 1:", lambda: QLineEdit())
             ]
         }
         self.campos_extras_widgets = []

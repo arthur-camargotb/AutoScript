@@ -3374,19 +3374,7 @@ CREATE TABLE TMPINTE095FOR
 )
 ;
 
-CREATE TABLE TMPINTE022CLF
-(
-    CDMATRIZ       VARCHAR(20)  NOT NULL,
-    CDFILIAL       VARCHAR(20)  NOT NULL,
-    DTHRIMPORTACAO TIMESTAMP(6)  NOT NULL,
-    NUSEQUENCIA    NUMERIC(9, 0)  NOT NULL,
-    CODCLF VARCHAR(3) NOT NULL,
-    PERIPI NUMERIC(8,4),
-	CONSTRAINT TMPINTE022CLF
-        PRIMARY KEY (CDMATRIZ, CDFILIAL, DTHRIMPORTACAO, NUSEQUENCIA, CODCLF)
-)
-;
-
+-- Inserções iniciais nas tabelas de configuração de integração
 INSERT INTO TBWMWCONFIGENTIDADEINTEG(NMENTIDADE, DSTIPOINTEGRACAO, NMSERVICOSENIOR, DSPORTASERVICOSENIOR, NMTAGPRINCIPALSENIOR, CDINTEGRACAOSENIOR, NMTAGPAI, DSCAMPOSCHAVETAGPAI, DSTIPOINTEGRACAOSENIOR, FLATIVO) VALUES ('E085CLI', 'Senior', 'sapiens_Synccom_senior_g5_co_cad_clientes', 'Exportar_7', 'cliente', '10', NULL, NULL, 'T', 'S');
 INSERT INTO TBWMWCONFIGENTIDADEINTEG(NMENTIDADE, DSTIPOINTEGRACAO, NMSERVICOSENIOR, DSPORTASERVICOSENIOR, NMTAGPRINCIPALSENIOR, CDINTEGRACAOSENIOR, NMTAGPAI, DSCAMPOSCHAVETAGPAI, DSTIPOINTEGRACAOSENIOR, FLATIVO) VALUES ('E085HCL', 'Senior', 'sapiens_Synccom_senior_g5_co_cad_clientes', 'Exportar_7', 'historico', '10', NULL, NULL, 'T', 'S');
 INSERT INTO TBWMWCONFIGENTIDADEINTEG(NMENTIDADE, DSTIPOINTEGRACAO, NMSERVICOSENIOR, DSPORTASERVICOSENIOR, NMTAGPRINCIPALSENIOR, CDINTEGRACAOSENIOR, NMTAGPAI, DSCAMPOSCHAVETAGPAI, DSTIPOINTEGRACAOSENIOR, FLATIVO) VALUES ('E085CTO', 'Senior', 'sapiens_Synccom_senior_g5_co_cad_clientes', 'Exportar_7', 'contatos', '10', NULL, NULL, 'T', 'S');
@@ -3449,7 +3437,6 @@ INSERT INTO TBWMWCONFIGENTIDADEINTEG(NMENTIDADE, DSTIPOINTEGRACAO, FLATIVO) VALU
 INSERT INTO TBWMWCONFIGENTIDADEINTEG(NMENTIDADE, DSTIPOINTEGRACAO, FLATIVO) VALUES ('CLIENTEATUA', 'Soap', 'S');
 INSERT INTO TBWMWCONFIGENTIDADEINTEG(NMENTIDADE, DSTIPOINTEGRACAO, FLATIVO) VALUES ('CLIENTEENDATUA', 'Soap', 'S');
 INSERT INTO TBWMWCONFIGENTIDADEINTEG(NMENTIDADE, DSTIPOINTEGRACAO, FLATIVO) VALUES ('CONTATO', 'Soap', 'S');
-
 
 UPDATE TBWMWCONFIGENTIDADEINTEG SET DSTIPOINTEGRACAO='Soap' WHERE NMENTIDADE='PEDIDO';
 UPDATE TBWMWCONFIGENTIDADEINTEG SET FLATIVO='N' WHERE NMENTIDADE='PEDIDOERP';
@@ -3662,7 +3649,6 @@ INSERT INTO TBWMWCONFIGCAMPOINTEG (NMENTIDADE, NMCAMPOSISTEMA, NMCAMPOERP, DSVAL
 INSERT INTO TBWMWCONFIGCAMPOINTEG (NMENTIDADE, NMCAMPOSISTEMA, NMCAMPOERP, DSVALORFIXO, DSVALORSECAMPOVAZIO, DSMASCARA, DSEXPRESSAO, FLATIVO) VALUES ('ITEMPEDIDO','cmpKit','cmpKit','','','','executeSql("SELECT FLKIT AS RETORNO FROM TBLVWPRODUTO WHERE CDEMPRESA =  ''"+cdEmpresa+"'' AND CDPRODUTO =  ''"+cdProduto+"'' AND FLATIVO = ''S''")','S');
 INSERT INTO TBWMWCONFIGCAMPOINTEG (NMENTIDADE, NMCAMPOSISTEMA, NMCAMPOERP, DSVALORFIXO, DSVALORSECAMPOVAZIO, DSMASCARA, DSEXPRESSAO, FLATIVO) VALUES ('ITEMPEDIDO','pedido.cdCentroCusto','codCcu','','','',')','S');
 INSERT INTO TBWMWCONFIGCAMPOINTEG (NMENTIDADE, NMCAMPOSISTEMA, NMCAMPOERP, DSVALORFIXO, DSVALORSECAMPOVAZIO, DSMASCARA, DSEXPRESSAO, FLATIVO) VALUES ('ITEMPEDIDO','codDep','codDep','','','','executeSql("SELECT CDLOCALESTOQUE AS RETORNO FROM TBLVWEMPRESA WHERE CDEMPRESA = ''" + cdEmpresa + "'' and flAtivo = ''S''")','S');
-INSERT INTO TBWMWCONFIGCAMPOINTEG (NMENTIDADE, NMCAMPOSISTEMA, NMCAMPOERP, DSVALORFIXO, DSVALORSECAMPOVAZIO, DSMASCARA, DSEXPRESSAO, FLATIVO) VALUES ('ITEMPEDIDO','codDep','codDep','1','','','','S');
 INSERT INTO TBWMWCONFIGCAMPOINTEG (NMENTIDADE, NMCAMPOSISTEMA, NMCAMPOERP, DSVALORFIXO, DSVALORSECAMPOVAZIO, DSMASCARA, DSEXPRESSAO, FLATIVO) VALUES ('ITEMPEDIDO','codDer','codDer','','','','itemTabelaPreco.produto.cdDerivacaoCdProduto','S');
 INSERT INTO TBWMWCONFIGCAMPOINTEG (NMENTIDADE, NMCAMPOSISTEMA, NMCAMPOERP, DSVALORFIXO, DSVALORSECAMPOVAZIO, DSMASCARA, DSEXPRESSAO, FLATIVO) VALUES ('ITEMPEDIDO','codMoe','codMoe','01','','','','S');
 INSERT INTO TBWMWCONFIGCAMPOINTEG (NMENTIDADE, NMCAMPOSISTEMA, NMCAMPOERP, DSVALORFIXO, DSVALORSECAMPOVAZIO, DSMASCARA, DSEXPRESSAO, FLATIVO) VALUES ('ITEMPEDIDO','codPro','codPro','','','','produto.dsReferencia','S');
@@ -3691,7 +3677,6 @@ INSERT INTO TBWMWCONFIGCAMPOINTEG (NMENTIDADE, NMCAMPOSISTEMA, NMCAMPOERP, DSVAL
 INSERT INTO TBWMWCONFIGCAMPOINTEG (NMENTIDADE, NMCAMPOSISTEMA, NMCAMPOERP, DSVALORFIXO, DSVALORSECAMPOVAZIO, DSMASCARA, DSEXPRESSAO, FLATIVO) VALUES ('ITEMPEDIDO','nuSeqItemPedido','seqIpd','','','','','S');
 INSERT INTO TBWMWCONFIGCAMPOINTEG (NMENTIDADE, NMCAMPOSISTEMA, NMCAMPOERP, DSVALORFIXO, DSVALORSECAMPOVAZIO, DSMASCARA, DSEXPRESSAO, FLATIVO) VALUES ('ITEMPEDIDO','sitIpd','sitIpd','9','','','','S');
 INSERT INTO TBWMWCONFIGCAMPOINTEG (NMENTIDADE, NMCAMPOSISTEMA, NMCAMPOERP, DSVALORFIXO, DSVALORSECAMPOVAZIO, DSMASCARA, DSEXPRESSAO, FLATIVO) VALUES ('ITEMPEDIDO','pedido.cdTipoPedido','tnsPro','','','','','S');
-INSERT INTO TBWMWCONFIGCAMPOINTEG (NMENTIDADE, NMCAMPOSISTEMA, NMCAMPOERP, DSVALORFIXO, DSVALORSECAMPOVAZIO, DSMASCARA, DSEXPRESSAO, FLATIVO) VALUES ('ITEMPEDIDO','cdUnidade','uniMed','','','','','S');
 INSERT INTO TBWMWCONFIGCAMPOINTEG (NMENTIDADE, NMCAMPOSISTEMA, NMCAMPOERP, DSVALORFIXO, DSVALORSECAMPOVAZIO, DSMASCARA, DSEXPRESSAO, FLATIVO) VALUES ('ITEMPEDIDO','cdUnidade','uniMed','','','','produto.cdUnidade','S');
 INSERT INTO TBWMWCONFIGCAMPOINTEG (NMENTIDADE, NMCAMPOSISTEMA, NMCAMPOERP, DSVALORFIXO, DSVALORSECAMPOVAZIO, DSMASCARA, DSEXPRESSAO, FLATIVO) VALUES ('ITEMPEDIDO','cdUnidade','venMed','','','','','S');
 
@@ -3777,3 +3762,243 @@ INSERT INTO TBWMWCONFIGCAMPOINTEG (NMENTIDADE, NMCAMPOSISTEMA, NMCAMPOERP, DSVAL
 INSERT INTO TBWMWCONFIGCAMPOINTEG (NMENTIDADE, NMCAMPOSISTEMA, NMCAMPOERP, DSVALORFIXO, DSVALORSECAMPOVAZIO, DSMASCARA, DSEXPRESSAO, FLATIVO) VALUES ('CONTATO','flAcaoAlteracao','opeExe','','','','','S');
 INSERT INTO TBWMWCONFIGCAMPOINTEG (NMENTIDADE, NMCAMPOSISTEMA, NMCAMPOERP, DSVALORFIXO, DSVALORSECAMPOVAZIO, DSMASCARA, DSEXPRESSAO, FLATIVO) VALUES ('CONTATO','seqCto','seqCto','','','','("I".equals(flAcaoAlteracao) ? null : cdContato)','S');
 INSERT INTO TBWMWCONFIGCAMPOINTEG (NMENTIDADE, NMCAMPOSISTEMA, NMCAMPOERP, DSVALORFIXO, DSVALORSECAMPOVAZIO, DSMASCARA, DSEXPRESSAO, FLATIVO) VALUES ('CONTATO','sitCto','sitCto','A','','','','S');
+
+CREATE OR REPLACE VIEW tbintempresa AS
+ SELECT DISTINCT mat.cdempresa,
+    fil.nomfil AS nmempresa,
+    lower(fil.intnet::text)::character varying(100) AS dsemail,
+    fil.sigfil::character varying(100) AS nmempresacurto,
+    fil.numcgc::character varying(20) AS nucnpj,
+    fil.insest::character varying(20) AS nuinscricaoestadual,
+    fil.endfil AS dslogradouro,
+    fil.nenfil::character varying(20) AS nulogradouro,
+    fil.cplend AS dscomplemento,
+    fil.baifil AS dsbairro,
+    fil.cepfil::character varying(20) AS dscep,
+    fil.cidfil AS dscidade,
+    fil.sigufs::character varying(20) AS dsestado,
+    fil.numfon::character varying(20) AS nufone,
+    fil.numfax::character varying(20) AS nufonefax,
+    fil.cxapst::character varying(20) AS nucaixapostal,
+    mat.cdmatriz,
+    mat.cdfilial
+   FROM tmpinte070fil fil
+   JOIN tblvwmatrizfilial mat ON mat.cdmatriz::text = fil.cdmatriz::text AND mat.cdfilial::text = fil.codfil::text;
+
+CREATE OR REPLACE VIEW tbintestoque  AS
+ SELECT DISTINCT fil.cdempresa,
+    '0'::character varying(20) AS cdrepresentante,
+    fncdprodutosenior(est.codpro::text, est.codder::text)::character varying(20) AS cdproduto,
+    'E'::character(1) AS florigemestoque,
+    (est.qtdest - est.qtdblo)::numeric(16,7) AS qtestoque,
+    est.qtdnfc::numeric(16,7) AS qtestoqueprevisto,
+    est.datnfc::timestamp(6) without time zone AS dtestoqueprevisto
+   FROM tbintempresa fil
+     JOIN tmpinte205dep dep ON fil.cdmatriz::text = dep.cdmatriz::text AND fil.cdfilial::text = dep.cdfilial::text
+     JOIN tmpinte210est est ON fil.cdmatriz::text = est.codemp::text AND dep.coddep::text = est.coddep::text
+  WHERE dep.sitdep = 'A'::bpchar AND est.qtdest > 0::numeric;
+	 
+CREATE OR REPLACE VIEW tbintitemtabelapreco AS
+ SELECT DISTINCT emp.cdempresa,
+    '0'::character varying(20) AS cdrepresentante,
+    itp.codtpr::character varying(30) AS cdtabelapreco,
+    itp.codpro::character varying(20) AS cdproduto,
+    itp.prebas::numeric(16,7) AS vlunitario,
+    itp.prebas::numeric(16,7) AS vlbase,
+    itp.tolmai::numeric(16,7) AS vlpctmaxacrescimo,
+    itp.tolmen::numeric(16,7) AS vlpctmaxdesconto,
+    itp.qtdmax::numeric(16,7) AS qtmaxvenda
+   FROM tbintempresa emp
+     JOIN tmpinte081tab tab ON tab.codemp::text = emp.cdmatriz::text AND tab.cdfilial::text = emp.cdfilial::text
+     JOIN tmpinte081tpr tpr ON tab.codemp = tpr.codemp AND tab.cdfilial::text = tpr.cdfilial::text AND tab.codtpr::text = tpr.codtpr::text
+     JOIN tmpinte081itp itp ON tab.codemp = itp.codemp AND tab.codtpr::text = itp.codtpr::text AND tpr.datini = itp.datini
+     JOIN tmpinte075pro pro ON pro.cdmatriz::text = itp.cdmatriz::text AND pro.cdfilial::text = itp.cdfilial::text AND pro.codemp = itp.codemp AND pro.codpro::text = itp.codpro::text
+     JOIN tmpinte075der der ON der.codemp = pro.codemp AND der.codpro::text = pro.codpro::text AND der.cdmatriz::text = itp.cdmatriz::text AND der.cdfilial::text = itp.cdfilial::text AND der.codemp = itp.codemp AND der.codpro::text = itp.codpro::text AND der.codder::text = itp.codder::text
+     LEFT JOIN tmpinte012fam fam ON fam.cdmatriz::text = pro.cdmatriz::text AND fam.cdfilial::text = pro.cdfilial::text AND pro.codfam::text = fam.codfam::text
+     LEFT JOIN tmpinte013agp agp ON agp.cdmatriz::text = pro.cdmatriz::text AND agp.cdfilial::text = pro.cdfilial::text AND agp.codagp::text = pro.codagc::text
+  WHERE tab.sitreg = 'A'::bpchar AND tpr.datini <= CURRENT_DATE AND tpr.datfim >= CURRENT_DATE AND tpr.sitreg = 'A'::bpchar AND itp.sitreg = 'A'::bpchar AND pro.sitpro = 'A'::bpchar AND pro.tippro <> 'S'::bpchar AND der.sitder = 'A'::bpchar AND fam.sitfam = 'A'::bpchar;
+
+CREATE OR REPLACE VIEW tbintproduto  AS
+ SELECT DISTINCT emp.cdempresa,
+    '0'::character varying(20) AS cdrepresentante,
+    pro.codpro::character varying(20) AS cdproduto,
+    pro.despro AS dsproduto,
+    pro.codagc::character varying(20) AS cdgrupoproduto1,
+    pro.codagc::character varying(20) AS cdlinha,
+    pro.codori::character varying(20) AS cdfornecedor,
+    pro.unimed::character varying(100) AS dsunidadefisica,
+        CASE
+            WHEN pro.sitpro = 'A'::bpchar THEN 1
+            ELSE 0
+        END::numeric(9,0) AS flsituacao,
+    pro.unimed::character varying(20) AS cdunidade,
+    COALESCE(
+        CASE
+            WHEN der.qtdemb = 0::numeric THEN 1::numeric
+            ELSE der.qtdemb
+        END, 1::numeric)::numeric(16,7) AS nuconversaounidadesmedida,
+    COALESCE(pro.peripi, 0::numeric)::numeric(16,7) AS vlpctipi,
+    pro.pesbru::numeric(16,7) AS qtpeso,
+    pro.altpro::numeric(16,7) AS qtaltura,
+    pro.larpro::numeric(16,7) AS qtlargura,
+    pro.compro::numeric(16,7) AS qtcomprimento,
+    der.codbar::character varying(200) AS nucodigobarras,
+    pro.codmar::character varying(20) AS cdmarca,
+    mar.nommar::character varying(100) AS dsmarca,
+    pro.codpro::character varying(100) AS dsreferencia,
+    der.codder::character varying(20) AS cdderivacaocdproduto,
+    pro.codpro::character varying(500) AS dscodigoalternativo,
+    pro.codpro::character varying(20) AS cdtributacaoproduto,
+    pro.orimer::character varying(20) AS cdorigemmercadoria,
+    regexp_replace(der.desder::text, '[^a-zA-Z0-9]+'::text, '_'::text)::character varying(20) AS cdconjunto,
+    der.codemp::character varying(100) AS cdagrupadorsimilaridade
+   FROM tbintempresa emp
+     JOIN tmpinte075pro pro ON emp.cdmatriz::text = pro.cdmatriz::text AND emp.cdfilial::text = pro.cdfilial::text
+     JOIN tmpinte075der der ON pro.codemp = der.codemp AND pro.codpro::text = der.codpro::text
+     JOIN tmpinte012fam fam ON fam.cdmatriz::text = pro.cdmatriz::text AND fam.cdfilial::text = pro.cdfilial::text
+     LEFT JOIN tmpinte013agp agp ON agp.cdmatriz::text = pro.cdmatriz::text AND agp.cdfilial::text = pro.cdfilial::text AND agp.codagp::text = pro.codagc::text
+     LEFT JOIN tmpinte076mar mar ON fam.cdmatriz::text = pro.cdmatriz::text AND fam.cdfilial::text = pro.cdfilial::text AND mar.codmar::text = pro.codmar::text AND mar.sitmar = 'A'::bpchar
+  WHERE pro.sitpro = 'A'::bpchar AND pro.tippro <> 'S'::bpchar AND der.sitder = 'A'::bpchar AND fam.sitfam = 'A'::bpchar;
+
+CREATE OR REPLACE VIEW tbintgrupoproduto1 AS
+ SELECT fam.cdgrupoproduto1,
+    fam.dsgrupoproduto1
+   FROM ( SELECT agp.codagp::character varying(20) AS cdgrupoproduto1,
+            agp.desagp::character varying(100) AS dsgrupoproduto1,
+            row_number() OVER (PARTITION BY agp.codagp ORDER BY agp.desagp) AS rn
+           FROM tbintempresa emp
+             JOIN tmpinte075pro pro ON emp.cdmatriz::text = pro.cdmatriz::text AND emp.cdfilial::text = pro.cdfilial::text
+             JOIN tmpinte075der der ON pro.codemp = der.codemp AND pro.codpro::text = der.codpro::text
+             JOIN tmpinte012fam fam_1 ON fam_1.cdmatriz::text = pro.cdmatriz::text AND fam_1.cdfilial::text = pro.cdfilial::text AND pro.codfam::text = fam_1.codfam::text
+             JOIN tmpinte013agp agp ON agp.cdmatriz::text = pro.cdmatriz::text AND agp.cdfilial::text = pro.cdfilial::text AND agp.codagp::text = pro.codagc::text
+          WHERE pro.sitpro = 'A'::bpchar AND pro.tippro <> 'S'::bpchar AND der.sitder = 'A'::bpchar AND fam_1.sitfam = 'A'::bpchar) fam
+  WHERE fam.rn = 1;
+
+CREATE OR REPLACE VIEW tbintrepresentante AS
+ SELECT rep.codrep::character varying(20) AS cdrepresentante,
+    upper(COALESCE(rep.aperep, rep.nomrep)::text)::character varying(100) AS nmrepresentante,
+    rep.intnet AS dsemail,
+        CASE
+            WHEN rep.catrep::text = 'VEN'::text THEN 'R'::text
+            WHEN rep.catrep::text = 'REP'::text THEN 'R'::text
+            ELSE 'S'::text
+        END::character(1) AS fltipocadastro,
+    rep.fonrep AS nufone,
+    rep.endrep AS dslogradouro,
+    rep.cplend::character varying(100) AS dscomplemento,
+    rep.bairep::character varying(100) AS dsbairro,
+    lpad(rep.ceprep::text, 8, '0'::text)::character varying(20) AS dscep,
+    rep.cidrep::character varying(100) AS dscidade,
+    rep.sigufs::character varying(20) AS dsestado
+   FROM ( SELECT rep_1.codrep,
+            rep_1.nomrep,
+            rep_1.aperep,
+            rep_1.intnet,
+            hrp.catrep,
+            rep_1.fonrep,
+            rep_1.endrep,
+            rep_1.cplend,
+            rep_1.bairep,
+            rep_1.ceprep,
+            rep_1.cidrep,
+            rep_1.sigufs,
+            rep_1.codcdi,
+            row_number() OVER (PARTITION BY rep_1.codrep ORDER BY rep_1.cdmatriz, rep_1.dthrimportacao DESC) AS rn
+           FROM tmpinte090rep rep_1
+             JOIN tmpinte090hrp hrp ON hrp.codrep = rep_1.codrep AND rep_1.cdmatriz::text = hrp.cdmatriz::text AND rep_1.cdfilial::text = hrp.cdfilial::text
+          WHERE rep_1.sitrep::text = 'A'::text AND (hrp.catrep::text = ANY (ARRAY['GRE'::character varying, 'GER'::character varying, 'SUP'::character varying, 'SUB'::character varying, 'VEN'::character varying, 'REP'::character varying]::text[]))) rep
+  WHERE rep.rn = 1;
+ 
+CREATE OR REPLACE VIEW tbintrepresentanteemp AS
+ SELECT DISTINCT emp.cdempresa,
+    rep.cdrepresentante,
+        CASE
+            WHEN rep.cdrepresentante::text = '1'::text THEN 'S'::text
+            ELSE 'N'::text
+        END::character(1) AS fldefault
+   FROM tmpinte090hrp hrp
+     JOIN tbintempresa emp ON emp.cdmatriz::text = hrp.codemp::text
+     JOIN tbintrepresentante rep ON rep.cdrepresentante::text = hrp.codrep::text;
+	 
+CREATE OR REPLACE VIEW tbinttabelapreco AS
+ SELECT DISTINCT emp.cdempresa,
+    '0'::character varying(20) AS cdrepresentante,
+    tab.codtpr::character varying(30) AS cdtabelapreco,
+    tab.destpr::character varying(100) AS dstabelapreco,
+    tpr.datini AS dtinicial,
+    tpr.datfim AS dtfinal,
+    tpr.datfim AS dtvalidade,
+    'S'::character(1) AS fldescontoqtdauto,
+    COALESCE(tab.tabbld, 'N'::bpchar)::character(1) AS flsomentecatalogo,
+    '0'::character varying(20) AS cdlocalestoque,
+    tab.espcli AS flespecial
+   FROM tbintempresa emp
+     JOIN tmpinte081tab tab ON tab.cdmatriz::text = emp.cdmatriz::text AND tab.cdfilial::text = emp.cdfilial::text
+     JOIN tmpinte081tpr tpr ON tpr.codemp = tab.codemp AND tpr.codtpr::text = tab.codtpr::text
+  WHERE tab.sitreg = 'A'::bpchar AND tpr.sitreg = 'A'::bpchar AND tpr.datini <= CURRENT_DATE AND tpr.datfim >= CURRENT_DATE;
+
+CREATE OR REPLACE VIEW tbinttipopagamento AS
+ SELECT DISTINCT emp.cdempresa,
+    '0'::character varying(20) AS cdrepresentante,
+    fpg.codfpg AS cdtipopagamento,
+    fpg.desfpg AS dstipopagamento,
+    fpg.venmfp::numeric(16,7) AS qtminvalor,
+    'N'::character(1) AS flocultoparanovocliente
+   FROM tbintempresa emp
+     JOIN tmpinte066fpg fpg ON fpg.cdmatriz::text = emp.cdmatriz::text AND fpg.cdfilial::text = emp.cdfilial::text
+  WHERE fpg.sitfpg = 'A'::bpchar;
+  
+CREATE OR REPLACE VIEW tbintcliente AS
+ SELECT DISTINCT emp.cdempresa,
+    hcl.codrep::character varying(20) AS cdrepresentante,
+    cli.codcli::character varying(20) AS cdcliente,
+    upper(cli.apecli::text)::character varying(100) AS nmrazaosocial,
+    upper(cli.nomcli::text)::character varying(100) AS nmfantasia,
+    hcl.codcpg::character varying(40) AS cdcondicaopagamento,
+    hcl.codfpg::character varying(20) AS cdtipopagamento,
+    hcl.codtpr::character varying(30) AS cdtabelapreco,
+    hcl.catcli::character varying(20) AS cdcategoria,
+    hcl.codtra::character varying(20) AS cdtransportadora,
+    cli.cgccpf::character varying(20) AS nucnpj,
+    cli.insest::character varying(20) AS nuinscricaoestadual,
+        CASE
+            WHEN length(hcl.vlrlim::character varying::text) > 11 THEN 999999999.9999999
+            ELSE hcl.vlrlim
+        END::numeric(16,7) AS vllimitecredito,
+    (1::numeric - hcl.perds1 / 100::numeric)::numeric(16,7) AS vlindicefinanceiro,
+    cli.foncli AS nufone,
+    cli.faxcli AS nufonefax,
+    cli.foncl2 AS nucelular,
+    lower(cli.intnet::text)::character varying(100) AS dsemail,
+    cli.obsmot::character varying(4000) AS dsobservacao,
+    cli.endcli AS dslogradourocomercial,
+    cli.nencli::character varying(20) AS nulogradourocomercial,
+    cli.cplend::character varying(100) AS dscomplementocomercial,
+    cli.baicli::character varying(100) AS dsbairrocomercial,
+    cli.cepcli::character varying(20) AS dscepcomercial,
+    cli.cidcli::character varying(100) AS dscidadecomercial,
+    cli.sigufs::character varying(20) AS cdestadocomercial,
+    cli.sigufs::character varying(20) AS dsestadocomercial,
+    cli.codroe::character varying(20) AS cdrotaentrega,
+    (((cli.sigufs::text || '-'::text) || cli.clicon::text))::character varying(20) AS cdtributacaocliente,
+    cli.codgre::character varying(20) AS cdrede,
+    cli.codram::character varying(20) AS cdramoatividade,
+    cpg.przmed::numeric(9,0) AS qtdiasmaximopagamento,
+    cli.cliprx::character varying(500) AS dsobslogistica
+   FROM tbintempresa emp
+     JOIN tmpinte085cli cli ON emp.cdmatriz::text = cli.cdmatriz::text AND emp.cdfilial::text = cli.cdfilial::text
+     JOIN tmpinte085hcl hcl ON hcl.codcli = cli.codcli AND hcl.cdmatriz::text = cli.cdmatriz::text AND hcl.cdfilial::text = cli.cdfilial::text
+     LEFT JOIN tmpinte028cpg cpg ON cpg.codemp = hcl.codemp AND cpg.codcpg::text = hcl.codcpg::text
+  WHERE cli.sitcli = 'A'::bpchar AND (cli.clifor = ANY (ARRAY['A'::bpchar, 'C'::bpchar])) AND hcl.codrep <> '0'::numeric;
+  
+CREATE OR REPLACE VIEW tbintcondicaopagamento AS
+ SELECT DISTINCT emp.cdempresa,
+    '0'::character varying(20) AS cdrepresentante,
+    cpg.codcpg::character varying(40) AS cdcondicaopagamento,
+    cpg.descpg::character varying(100) AS dscondicaopagamento,
+    COALESCE(1::numeric + cpg.vendsc / 100::numeric, 1::numeric)::numeric(16,7) AS vlindicefinanceiro,
+    cpg.przmed::numeric(9,0) AS qtdiasmediospagamento,
+    cpg.qtdpar::numeric(9,0) AS nuparcelas
+   FROM tbintempresa emp
+     JOIN tmpinte028cpg cpg ON emp.cdmatriz::text = cpg.cdmatriz::text AND emp.cdfilial::text = cpg.cdfilial::text
+  WHERE cpg.aplcpg <> 'C'::bpchar;

@@ -391,9 +391,28 @@ class TelaInicial(QWidget):
         self.setLayout(layout)
 
     def salvar_e_avancar(self):
+        # Valida campos obrigatórios
         if not self.cliente_input.text().strip():
             QMessageBox.warning(self, "Campo Obrigatório", "O campo 'Nome do Cliente' é obrigatório.")
             return
+
+        if not self.ip_interno_input.text().strip():
+            QMessageBox.warning(self, "Campo Obrigatório", "O campo 'IP Interno' é obrigatório.")
+            return
+
+        if not self.porta_tomcat_input.text().strip():
+            QMessageBox.warning(self, "Campo Obrigatório", "O campo 'Porta Tomcat' é obrigatório.")
+            return
+
+        # Campos extras específicos do ERP selecionado
+        for label, widget in self.campos_extras_widgets:
+            if not widget.text().strip():
+                QMessageBox.warning(
+                    self,
+                    "Campo Obrigatório",
+                    f"O campo '{label.rstrip(':')}' é obrigatório."
+                )
+                return
 
         # Salvando os novos campos na configuração
         self.config['DEFAULT'] = {
@@ -992,7 +1011,8 @@ class MainApp(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Executor de Scripts por ERP")
-        self.setFixedSize(700, 650)
+        # Permite redimensionar a janela, removendo a restrição de tamanho fixo
+        self.resize(700, 650)
 
         self.stacked = QStackedWidget()
         self.tela_inicial = TelaInicial(self.avancar_para_conexao)

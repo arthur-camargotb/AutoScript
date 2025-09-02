@@ -341,7 +341,7 @@ class TelaInicial(QWidget):
             "Senior": [
                 ("Url Senior:", lambda: create_line_edit(placeholder="Somente ip:porta")),
                 ("Usuario Senior:", lambda: QLineEdit()),
-                ("Senha Senior:", lambda: create_line_edit(echo_mode=QLineEdit.Password))
+                ("Senha Senior:", lambda: create_line_edit())
             ],
             "WMW": [
             ]

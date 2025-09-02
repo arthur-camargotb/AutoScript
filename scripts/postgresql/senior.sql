@@ -3763,6 +3763,15 @@ INSERT INTO TBWMWCONFIGCAMPOINTEG (NMENTIDADE, NMCAMPOSISTEMA, NMCAMPOERP, DSVAL
 INSERT INTO TBWMWCONFIGCAMPOINTEG (NMENTIDADE, NMCAMPOSISTEMA, NMCAMPOERP, DSVALORFIXO, DSVALORSECAMPOVAZIO, DSMASCARA, DSEXPRESSAO, FLATIVO) VALUES ('CONTATO','seqCto','seqCto','','','','("I".equals(flAcaoAlteracao) ? null : cdContato)','S');
 INSERT INTO TBWMWCONFIGCAMPOINTEG (NMENTIDADE, NMCAMPOSISTEMA, NMCAMPOERP, DSVALORFIXO, DSVALORSECAMPOVAZIO, DSMASCARA, DSEXPRESSAO, FLATIVO) VALUES ('CONTATO','sitCto','sitCto','A','','','','S');
 
+CREATE OR REPLACE FUNCTION FNCDPRODUTOSENIOR(P_CODPRO IN VARCHAR2, P_CODDER IN VARCHAR2) RETURN VARCHAR2
+IS
+    V_RETORNO  VARCHAR2(20);
+BEGIN
+	SELECT DECODE(DECODE(TRIM(P_CODDER),'','0'), '0', '', '.' || P_CODDER) INTO V_RETORNO FROM DUAL; -- Se nao for vazio ja concatena com ponto
+    V_RETORNO := P_CODPRO || V_RETORNO;
+    RETURN(V_RETORNO);
+END FNCDPRODUTOSENIOR;
+
 CREATE OR REPLACE VIEW tbintempresa AS
  SELECT DISTINCT mat.cdempresa,
     fil.nomfil AS nmempresa,
@@ -3802,7 +3811,7 @@ CREATE OR REPLACE VIEW tbintitemtabelapreco AS
  SELECT DISTINCT emp.cdempresa,
     '0'::character varying(20) AS cdrepresentante,
     itp.codtpr::character varying(30) AS cdtabelapreco,
-    itp.codpro::character varying(20) AS cdproduto,
+    fncdprodutosenior(itp.codpro::text, itp.codder::text)::character varying(20) AS cdproduto,
     itp.prebas::numeric(16,7) AS vlunitario,
     itp.prebas::numeric(16,7) AS vlbase,
     itp.tolmai::numeric(16,7) AS vlpctmaxacrescimo,
@@ -3821,7 +3830,7 @@ CREATE OR REPLACE VIEW tbintitemtabelapreco AS
 CREATE OR REPLACE VIEW tbintproduto  AS
  SELECT DISTINCT emp.cdempresa,
     '0'::character varying(20) AS cdrepresentante,
-    pro.codpro::character varying(20) AS cdproduto,
+    fncdprodutosenior(pro.codpro::text, pro.codder::text)::character varying(20) AS cdproduto,
     pro.despro AS dsproduto,
     pro.codagc::character varying(20) AS cdgrupoproduto1,
     pro.codagc::character varying(20) AS cdlinha,

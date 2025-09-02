@@ -33,13 +33,7 @@ if sys.platform.startswith("win"):
         pass
 
 def _parse_sql_commands(script):
-    """
-    Divide um script SQL em comandos individuais de forma robusta.
-    Comentários de linha ou bloco são removidos antes da execução.
-    Esta versão lida corretamente com aspas simples, aspas duplas e,
-    crucialmente, aspas entre dólares ($tag$ ... $tag$) do PostgreSQL,
-    evitando erros de sintaxe.
-    """
+
     commands = []
     current_command = ""
     in_single_quotes = False

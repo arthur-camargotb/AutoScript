@@ -3836,7 +3836,7 @@ CREATE OR REPLACE VIEW tbintitemtabelapreco AS
 CREATE OR REPLACE VIEW tbintproduto  AS
  SELECT DISTINCT emp.cdempresa,
     '0'::character varying(20) AS cdrepresentante,
-    concat(pro.codpro::text, pro.codder::text)::character varying(20) AS cdproduto,
+    concat(pro.codpro::text, der.codder::text)::character varying(20) AS cdproduto,
     pro.despro AS dsproduto,
     pro.codagc::character varying(20) AS cdgrupoproduto1,
     pro.codagc::character varying(20) AS cdlinha,

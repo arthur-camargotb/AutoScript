@@ -3803,7 +3803,7 @@ CREATE OR REPLACE VIEW tbintempresa AS
 CREATE OR REPLACE VIEW tbintestoque  AS
  SELECT DISTINCT fil.cdempresa,
     '0'::character varying(20) AS cdrepresentante,
-    fncdprodutosenior(est.codpro::text, est.codder::text)::character varying(20) AS cdproduto,
+    concat(est.codpro::text, est.codder::text)::character varying(20) AS cdproduto,
     'E'::character(1) AS florigemestoque,
     (est.qtdest - est.qtdblo)::numeric(16,7) AS qtestoque,
     est.qtdnfc::numeric(16,7) AS qtestoqueprevisto,
@@ -3817,7 +3817,7 @@ CREATE OR REPLACE VIEW tbintitemtabelapreco AS
  SELECT DISTINCT emp.cdempresa,
     '0'::character varying(20) AS cdrepresentante,
     itp.codtpr::character varying(30) AS cdtabelapreco,
-    fncdprodutosenior(itp.codpro::text, itp.codder::text)::character varying(20) AS cdproduto,
+    concat(itp.codpro::text, itp.codder::text)::character varying(20) AS cdproduto,
     itp.prebas::numeric(16,7) AS vlunitario,
     itp.prebas::numeric(16,7) AS vlbase,
     itp.tolmai::numeric(16,7) AS vlpctmaxacrescimo,
@@ -3836,7 +3836,7 @@ CREATE OR REPLACE VIEW tbintitemtabelapreco AS
 CREATE OR REPLACE VIEW tbintproduto  AS
  SELECT DISTINCT emp.cdempresa,
     '0'::character varying(20) AS cdrepresentante,
-    fncdprodutosenior(pro.codpro::text, pro.codder::text)::character varying(20) AS cdproduto,
+    concat(pro.codpro::text, pro.codder::text)::character varying(20) AS cdproduto,
     pro.despro AS dsproduto,
     pro.codagc::character varying(20) AS cdgrupoproduto1,
     pro.codagc::character varying(20) AS cdlinha,

@@ -335,7 +335,10 @@ class TelaInicial(QWidget):
             "Senior": [
                 ("Url Senior:", lambda: create_line_edit(placeholder="Somente ip:porta")),
                 ("Usuario Senior:", lambda: QLineEdit()),
-                ("Senha Senior:", lambda: create_line_edit())
+                ("Senha Senior:", lambda: create_line_edit()),
+                ("Matriz:", lambda: create_line_edit(placeholder="Caso seja mais de um separar por ';'")),
+                ("Filial:", lambda: create_line_edit(placeholder="Caso seja mais de um separar por ';'")),
+                ("Empresa(WMW):", lambda: create_line_edit(placeholder="Caso seja mais de um separar por ';' (ex: 1-1;1-2)"))
             ],
             "WMW": [
             ]
@@ -810,6 +813,9 @@ class TelaConexao(QWidget):
             url_senior = self.extras.get("Url Senior", "").strip()
             usuario_senior = self.extras.get("Usuario Senior", "").strip()
             senha_senior = self.extras.get("Senha Senior", "").strip()
+            matriz_senior = self.extras.get("Matriz", "").strip()
+            filial_senior = self.extras.get("Filial", "").strip()
+            empresa_senior = self.extras.get("Empresa(WMW)", "").strip()
 
             if url_senior:
                 script_url_senior = (
@@ -830,6 +836,19 @@ class TelaConexao(QWidget):
                 )
                 conteudo_erp += script_auth_senior + "\n"
                 self.log += script_auth_senior
+
+            matriz_list = [m.strip() for m in matriz_senior.split(";") if m.strip()]
+            filial_list = [f.strip() for f in filial_senior.split(";") if f.strip()]
+            empresa_list = [e.strip() for e in empresa_senior.split(";") if e.strip()]
+            if matriz_list and filial_list and empresa_list:
+                script_matriz_filial = ""
+                for m, f, e in zip(matriz_list, filial_list, empresa_list):
+                    script_matriz_filial += (
+                        "INSERT INTO tblvwmatrizfilial(cdmatriz,cdfilial,cdempresa,flativo,fltipoalteracao) "
+                        f"VALUES ('{m}','{f}','{e}','S','I');\n"
+                    )
+                conteudo_erp += script_matriz_filial + "\n"
+                self.log += script_matriz_filial
 
         # Se não há scripts para executar, retorna
         if not (conteudo_padrao.strip() or conteudo_erp.strip()):

@@ -23,7 +23,16 @@ import oracledb
 import pyodbc
 
 # Diretório base do projeto para localizar arquivos de script
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+# Diretório base para recursos (scripts, ícones) - pode estar dentro do executável
+if getattr(sys, 'frozen', False):
+    # Se estiver rodando como executável (PyInstaller)
+    BASE_DIR = sys._MEIPASS
+    # O arquivo de configuração deve ficar fora, junto com o executável
+    CONFIG_DIR = os.path.dirname(sys.executable)
+else:
+    # Se estiver rodando como script
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    CONFIG_DIR = BASE_DIR
 
 # Garante que o oracledb possa ser importado.
 if sys.platform.startswith("win"):
@@ -268,7 +277,7 @@ class TelaInicial(QWidget):
         super().__init__()
         self.avancar_callback = avancar_callback
         self.config = configparser.ConfigParser()
-        self.config.read(os.path.join(BASE_DIR, 'config.ini'))
+        self.config.read(os.path.join(CONFIG_DIR, 'config.ini'))
 
         self.setStyleSheet("""
             QWidget {
@@ -418,7 +427,7 @@ class TelaInicial(QWidget):
             'ip_interno': self.ip_interno_input.text(),
             'porta_tomcat': self.porta_tomcat_input.text()
         }
-        with open(os.path.join(BASE_DIR, 'config.ini'), 'w') as configfile:
+        with open(os.path.join(CONFIG_DIR, 'config.ini'), 'w') as configfile:
             self.config.write(configfile)
         self.avancar_callback()
 
@@ -452,7 +461,7 @@ class TelaConexao(QWidget):
         self.db_manager = None
         self.log = ""
         self.config = configparser.ConfigParser()
-        self.config.read(os.path.join(BASE_DIR, 'config.ini'))
+        self.config.read(os.path.join(CONFIG_DIR, 'config.ini'))
 
         self.setStyleSheet("""
             QWidget {
@@ -608,7 +617,7 @@ class TelaConexao(QWidget):
             config_key = label_text.replace(":", "").strip().lower().replace(" ", "_")
             self.config['CONNECTION'][config_key] = widget.text()
 
-        with open(os.path.join(BASE_DIR, 'config.ini'), 'w') as configfile:
+        with open(os.path.join(CONFIG_DIR, 'config.ini'), 'w') as configfile:
             self.config.write(configfile)
 
     def configurar_tela(self, dados_iniciais):

@@ -534,6 +534,23 @@ WITH dias AS (
      LEFT JOIN dias ON (((dias.cdcliente)::text = (cli.cdcliente)::text)))
   WHERE ((cli.flativo = 'S'::bpchar) AND ((cli.cdrepresentante)::text <> 'S'::text));
 
+CREATE VIEW TBINTTITULOFINANCEIRO AS
+SELECT 
+	CDEMPRESA,
+    trim(cdrepresentante)::varchar(20) as cdrepresentante,
+    trim(replace(cdcliente,' ',''))::varchar(20) as cdcliente,
+	NUNF,
+	NUSERIE,
+	NUTITULO,
+	NUSUBDOC,
+	VLNF,
+	VLTITULO,
+	VLPAGO,
+	DTEMISSAO,
+	DTVENCIMENTO
+FROM TMPINTTITULOFINANCEIRO
+WHERE FLATIVO='S'
+
 create view tbintconcorrente as
 select 
 	cdempresa,
